@@ -2,6 +2,7 @@ from fastapi import FastAPI, Header, HTTPException, status, Request
 from datetime import datetime, timedelta, timezone
 import jwt
 from typing import Union
+import uvicorn
 
 ACCESS_TOKEN_EXPIRY_MINUTES = 30
 ALGORITHM = "HS256"
@@ -66,3 +67,6 @@ def validate_token(authorization = Header(None)):
     except:
         print('Exception Occurred')
         raise token_exception
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port= 8000, log_level="info")
