@@ -70,4 +70,4 @@ def validate_token(authorization = Header(None)):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port= 8080, workers=2)
+    uvicorn.run(app, host="0.0.0.0", port= int(8080))
