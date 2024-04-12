@@ -1,8 +1,13 @@
-from fastapi import FastAPI, Header, HTTPException, status, Request
+from fastapi import FastAPI, Header, HTTPException, status, Request, Body
+from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta, timezone
 import jwt
 from typing import Union
 import uvicorn
+from openai import OpenAI, OpenAIError
+import json
+from dotenv import load_dotenv
+import gunicorn
 
 ACCESS_TOKEN_EXPIRY_MINUTES = 30
 ALGORITHM = "HS256"
@@ -11,20 +16,9 @@ API_KEY = "test123"
 
 app = FastAPI()
 
-
-class Item():
-    id: str
-    password: str
-
 @app.get("/")
 def read_root():
     return {"msg":"This is message from root! Hello World"}
-
-
-@app.post("/register")
-def create_user(items : dict):
-    print(items)
-    return {'username':items['id'], 'pass':items['password']}
 
 
 @app.post("/token")
@@ -68,6 +62,88 @@ def validate_token(authorization = Header(None)):
         print('Exception Occurred')
         raise token_exception
 
+def token_validation(token):
+    token_exception = HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or Expired Token"
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        subject:str = payload.get("sub")
+        if subject is None:
+            raise token_exception
+        else:
+            return True
+    except:
+        raise token_exception
+
+
+
+@app.post("/moderation")
+def moderation(request = Body(None), authorization = Header(None)):
+    token_validation(authorization)
+    if request:
+        response = openAI_moderation(request)
+        return response
+    else:
+        raise HTTPException(
+            status_code = status.HTTP_400_BAD_REQUEST,
+            detail = "Bad Request"
+        )
+
+def openAI_moderation(request):
+    client = OpenAI(api_key="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")
+    try:
+        moderation = client.moderations.create(
+            input = request['input']
+        )
+    except OpenAIError as e:
+        return JSONResponse(
+            status_code=500,
+            content=e.body
+        )
+
+    return moderation
+
+def openAI_completion(request):
+    client = OpenAI(api_key="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")
+    try:
+        completion = client.completions.create(
+            model="gpt-3.5-turbo-instruct",
+            prompt= request['input'],
+            max_tokens=7,
+            temperature=0
+        )
+    except OpenAIError as e:
+        return JSONResponse(
+            status_code=500,
+            content=e.body
+        )
+
+    return completion
+
+
+@app.post("/completion")
+def completion(request = Body(None), authorization = Header(None)):
+    token_validation(authorization)
+    if request:
+        modResponse = openAI_moderation(request)
+
+        if(modResponse.results[0].flagged == True):
+            return JSONResponse(
+                status_code= 404,
+                content={"detail" : "Moderation Response Flagged True"}
+            )
+
+        response = openAI_completion(request)
+        return response
+    else:
+        raise HTTPException(
+            status_code = status.HTTP_400_BAD_REQUEST,
+            detail = "Bad Request"
+        )
+    
 
 if __name__ == "__main__":
-    uvicorn.run(app=app, host="0.0.0.0", port= int(8080))
+    #uvicorn.run("main:app", host="0.0.0.0", port= int(8080))
+    gunicorn
