@@ -8,6 +8,7 @@ from openai import OpenAI, OpenAIError
 import json
 from dotenv import load_dotenv
 import gunicorn
+import os
 
 ACCESS_TOKEN_EXPIRY_MINUTES = 30
 ALGORITHM = "HS256"
@@ -15,6 +16,10 @@ SECRET_KEY = "123!@£qwerty"
 API_KEY = "test123"
 
 app = FastAPI()
+
+load_dotenv()
+openai_key = os.getenv("OPENAI_API_KEY")
+
 
 @app.get("/")
 def read_root():
@@ -92,7 +97,7 @@ def moderation(request = Body(None), authorization = Header(None)):
         )
 
 def openAI_moderation(request):
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key=openai_key)
     try:
         moderation = client.moderations.create(
             input = request['input']
@@ -106,7 +111,7 @@ def openAI_moderation(request):
     return moderation
 
 def openAI_completion(request):
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key=openai_key)
     try:
         completion = client.completions.create(
             model="gpt-3.5-turbo-instruct",
@@ -145,5 +150,4 @@ def completion(request = Body(None), authorization = Header(None)):
     
 
 if __name__ == "__main__":
-    #uvicorn.run("main:app", host="0.0.0.0", port= int(8080))
-    gunicorn
+    uvicorn.run("main:app", host="0.0.0.0", port= int(8080))
