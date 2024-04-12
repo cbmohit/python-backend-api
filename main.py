@@ -12,13 +12,13 @@ import os
 
 ACCESS_TOKEN_EXPIRY_MINUTES = 30
 ALGORITHM = "HS256"
-SECRET_KEY = "123!@£qwerty"
-API_KEY = "test123"
 
 app = FastAPI()
 
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
+API_KEY = os.getenv("API_KEY")
 
 
 @app.get("/")
