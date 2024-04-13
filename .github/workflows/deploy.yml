@@ -49,5 +49,5 @@ jobs:
           region: ${{ env.RUN_REGION }}
           service: python-app
           flags: --port=8080 --allow-unauthenticated
-          set-env-vars:
-            API_KEY: test123
+          env_vars: |
+            API_KEY= test123
