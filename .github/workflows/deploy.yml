@@ -44,10 +44,10 @@ jobs:
       - id: deploy
         name: Deploy Docker image
         uses: "google-github-actions/deploy-cloudrun@v0"
-        env:
-          API_KEY: test123
         with:
           image: ${{ env.IMAGE_NAME }}
           region: ${{ env.RUN_REGION }}
           service: python-app
           flags: --port=8080 --allow-unauthenticated
+          env_vars:
+            API_KEY: test123
