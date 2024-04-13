@@ -45,7 +45,7 @@ jobs:
         name: Deploy Docker image
         uses: "google-github-actions/deploy-cloudrun@v0"
         env:
-          API_KEY: ${{ env.API_KEY }}
+          API_KEY: test123
           SECRET_KEY: ${{ env.SECRET_KEY }}
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
         with:
