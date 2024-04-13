@@ -41,16 +41,14 @@ jobs:
       - id: deploy
         name: Deploy Docker image
         uses: "google-github-actions/deploy-cloudrun@v0"
+        env:
+          API_KEY: test123
+          SECRET_KEY: 123!@£qwerty
         with:
           image: ${{ env.IMAGE_NAME }}
           region: ${{ env.RUN_REGION }}
           service: app
           flags: --port=8080
-          env:
-          - name: API_KEY
-            value: test123
-          - name: SECRET_KEY
-            value: 123!@£qwerty
 
       # # Setup gcloud CLI
       # - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
