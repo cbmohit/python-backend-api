@@ -7,23 +7,56 @@ env:
   PROJECT_ID: python-backend-api-419906
   RUN_REGION: us-central1 
   SA_KEY_JSON: ${{ secrets.SA_CREDS }}
+
 jobs:
   deploy:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
+
+    env:
+      # Replace $PROJECT_ID with your project ID
+      IMAGE_NAME: gcr.io/$PROJECT_ID/app
+
     steps:
-      - uses: actions/checkout@v2
-
-      # Setup gcloud CLI
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      # NOTE: Alternative option - authentication via credentials json
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
         with:
-          version: "290.0.1"
-          service_account_key: ${{ secrets.SA_CREDS }}
-          project_id: python-backend-api-419906
+          credentials_json: '${{ secrets.SA_CREDS }}'
 
-      # Build and push image to Google Container Registry
-      - name: Build
-        run: gcloud builds submit --tag gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA
+      - name: Configure Docker
+        run: gcloud auth configure-docker --quiet
 
-      - name: Deploy
-        run: gcloud run deploy $PROJECT_ID --image gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA --platform managed --region $RUN_REGION --allow-unauthenticated
+      - name: Build Docker image
+        run: docker build . -t $IMAGE_NAME
+
+      - name: Push Docker image
+        run: docker push $IMAGE_NAME
+      
+      - id: deploy
+        name: Deploy Docker image
+        uses: "google-github-actions/deploy-cloudrun@v0"
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          region: $RUN_REGION
+          service: app
+          flags: --port=8080
+
+      # # Setup gcloud CLI
+      # - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      #   with:
+      #     version: "290.0.1"
+      #     service_account_key: ${{ secrets.SA_CREDS }}
+      #     project_id: python-backend-api-419906
+
+      # # Build and push image to Google Container Registry
+      # - name: Build
+      #   run: gcloud builds submit --tag gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA
+
+      # - name: Deploy
+      #   run: gcloud run deploy $PROJECT_ID --image gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA --platform managed --region $RUN_REGION --allow-unauthenticated
