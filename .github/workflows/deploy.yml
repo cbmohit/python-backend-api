@@ -50,6 +50,6 @@ jobs:
           service: python-app
           flags: --port=8080 --allow-unauthenticated
           env_vars: |
-            API_KEY= `${{ secrets.API_KEY }}`
-            SECRET_KEY = `${{ secrets.SECRET_KEY }}`
-            OPENAI_API_KEY = `${{ secrets.OAI_API_KEY }}`
+            API_KEY= ${{ secrets.API_KEY }}
+            SECRET_KEY = ${{ secrets.SECRET_KEY }}
+            OPENAI_API_KEY = ${{ secrets.OAI_API_KEY }}
