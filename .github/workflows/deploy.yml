@@ -15,7 +15,7 @@ jobs:
 
     env:
       # Replace $PROJECT_ID with your project ID
-      IMAGE_NAME: gcr.io/$PROJECT_ID/app
+      IMAGE_NAME: gcr.io/${{ env.PROJECT_ID }}/app
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -43,7 +43,7 @@ jobs:
         uses: "google-github-actions/deploy-cloudrun@v0"
         with:
           image: ${{ env.IMAGE_NAME }}
-          region: $RUN_REGION
+          region: ${{ env.RUN_REGION }}
           service: app
           flags: --port=8080
 
