@@ -15,7 +15,7 @@ jobs:
 
     env:
       # Replace $PROJECT_ID with your project ID
-      IMAGE_NAME: gcr.io/${{ env.PROJECT_ID }}/app
+      IMAGE_NAME: gcr.io/python-backend-api-419906/app
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
