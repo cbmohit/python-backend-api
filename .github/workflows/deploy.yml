@@ -7,9 +7,9 @@ env:
   PROJECT_ID: python-backend-api-419906
   RUN_REGION: us-central1 
   SA_KEY_JSON: ${{ secrets.SA_CREDS }}
-  # API_KEY: ${{ secrets.API_KEY }}
-  # SECRET_KEY: ${{ secrets.SECRET_KEY }}
-  # OPENAI_API_KEY: ${{ secrets.OAI_API_KEY}}
+  API_KEY: ${{ secrets.API_KEY }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OAI_API_KEY}}
 
 jobs:
   deploy:
@@ -50,4 +50,6 @@ jobs:
           service: python-app
           flags: --port=8080 --allow-unauthenticated
           env_vars: |
-            API_KEY= test123
+            API_KEY= ${{env.APIKEY }}
+            SECRET_KEY = ${{ env.SECRET_KEY }}
+            OPENAI_API_KEY = ${{ env.OPENAI_API_KEY }}
