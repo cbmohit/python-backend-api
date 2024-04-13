@@ -7,6 +7,9 @@ env:
   PROJECT_ID: python-backend-api-419906
   RUN_REGION: us-central1 
   SA_KEY_JSON: ${{ secrets.SA_CREDS }}
+  API_KEY: ${{ secrets.API_KEY }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OAI_API_KEY}}
 
 jobs:
   deploy:
@@ -15,7 +18,7 @@ jobs:
 
     env:
       # Replace $PROJECT_ID with your project ID
-      IMAGE_NAME: gcr.io/python-backend-api-419906/app
+      IMAGE_NAME: gcr.io/python-backend-api-419906/python-app
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -42,24 +45,11 @@ jobs:
         name: Deploy Docker image
         uses: "google-github-actions/deploy-cloudrun@v0"
         env:
-          API_KEY: test123
-          SECRET_KEY: 123!@£qwerty
+          API_KEY: ${{ env.API_KEY }}
+          SECRET_KEY: ${{ env.SECRET_KEY }}
+          OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
         with:
           image: ${{ env.IMAGE_NAME }}
           region: ${{ env.RUN_REGION }}
-          service: app
-          flags: --port=8080
-
-      # # Setup gcloud CLI
-      # - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      #   with:
-      #     version: "290.0.1"
-      #     service_account_key: ${{ secrets.SA_CREDS }}
-      #     project_id: python-backend-api-419906
-
-      # # Build and push image to Google Container Registry
-      # - name: Build
-      #   run: gcloud builds submit --tag gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA
-
-      # - name: Deploy
-      #   run: gcloud run deploy $PROJECT_ID --image gcr.io/$PROJECT_ID/$PROJECT_ID:$GITHUB_SHA --platform managed --region $RUN_REGION --allow-unauthenticated
+          service: python-app
+          flags: --port=8080 --allow-unauthenticated
